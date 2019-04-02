@@ -17,98 +17,87 @@ var connection = mysql.createConnection({
   database: "bamazon_DB"
 });
 
-connection.connect(function(err) {
+connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId);
   afterConnection();
+
 });
 
 function afterConnection() {
-  connection.query("SELECT * FROM products", function(err, res) {
+  connection.query("SELECT * FROM products", function (err, res) {
     if (err) throw err;
     console.table(res);
-    // searchItems()
-    // connection.end();
+
+    searchItems()
   });
-  
 }
-// function searchItems() {
-//   inquirer
-//     .prompt([
-//       {
-//       name: "productId",
-//       type: "input",
-//       message: "What is the ID number of the product you prefer to buy?",
-//       validate: function(value){
-//         if(isNaN(value) === false){
-//           return true;
-//         }
-//         return false;
-//       }  
-    
-//     },
-//     {
-//     name: "amount",
-//     type: "input",
-//     message: "Quantity",
-//     validate: function(value){
-//       if(isNaN(value) === false){
-//         return true;
-//       }
-//       return false;
-//     }
 
-//     }
-//   ])
-//     .then(function(answer) {
+function searchItems() {
+  inquirer
+    .prompt([
+      {
+        name: "productId",
+        type: "input",
+        message: "What is the ID number of the product you prefer to buy?",
+        validate: function (value) {
+          if (isNaN(value) === false) {
+            return true;
+          }
+          return false;
+        }
+      },
+      {
+        name: "qty",
+        type: "input",
+        message: "Quantity",
+        validate: function (value) {
+          if (isNaN(value) === false) {
+            return true;
+          }
+          return false;
+        }
+      }
+    ])
+    .then(function (answer) {
 
-//       connection.query("SELECT products.name FROM bamazon_DB.products WHERE ?", {productId: answer.productId}, function(err, res) {
-        
-//           console.log( "PRODUCT ID: " + answer.productId + " || Item: " + answer.amount);
-        
-//       });
-//     });
-// }
-//       // switch (answer.action) {
-//       // case "Find songs by artist":
-//       //   artistSearch();
-//       //   break;
+      connection.query("SELECT * FROM products WHERE id=?", [answer.productId], function (err, res) {
+        var currentItemQty = [];
+        var numberOfItems = Number([answer.qty]);
+        // console.log(numberOfItems);
 
-//       // case "Find all artists who appear more than once":
-//       //   multiSearch();
-//       //   break;
+        for (var i = 0; i < res.length; i++) {
+          currentItemQty.push(res[i].quantity);
+          console.log("Item ID #: " + res[i].id + " | " + "Purchased Item: " + res[i].name + " | " + "Qty: " + [answer.qty] + " | " + "Unit Price is: $" + res[i].price + " | " + "Total Price is: $" + (res[i].price * (numberOfItems)));
+        }
+        // console.log(currentItemQty[0]);
 
-//       // case "Find data within a specific range":
-//       //   rangeSearch();
-//       //   break;
+        var updatedInventory = currentItemQty[0] - numberOfItems;
+        // console.log(updatedInventory);
 
-//       // case "Search for a specific song":
-//       //   songSearch();
-//       //   break;
+        function updateInventory() {
+          console.log("Updating quantities...\n");
+          var query = connection.query(
+            "UPDATE products SET ? WHERE ?",
+            [
+              {
+                quantity: updatedInventory
+              },
+              {
+                id: answer.productId
+              },
+            ],
+          ); readProducts();
+        } updateInventory()
+      });
+    });
+}
+function readProducts() {
+  console.log("Selecting all products...\n");
+  connection.query("SELECT * FROM products", function (err, res) {
+    if (err) throw err;
 
-//       // case "Find artists with a top song and top album in the same year":
-//       //   songAndAlbumSearch();
-//       //   break;
-//       // }
-
-
-
-// // * The first should ask them the ID of the product they would like to buy.
-// // * The second message should ask how many units of the product they would like to buy.
-
-// // var nodeArgs = process.argv()
-
-// // var startSelling = nodeArgs[2];
-
-// // if()
-
-// // function readProducts() {
-// //   console.log("Selecting all products...\n");
-// //   connection.query("SELECT * FROM products", function(err, res) {
-// //     if (err) throw err;
-// //     // Log all results of the SELECT statement
-// //     console.log(res);
-// //     connection.end();
-// //   });
-// // }
-// // readProducts()
+    console.table(res);
+    connection.end();
+  });
+}
