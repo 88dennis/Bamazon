@@ -2,6 +2,8 @@ var inquirer = require("inquirer");
 
 var mysql = require("mysql");
 
+var totalBill = [];
+
 var connection = mysql.createConnection({
   host: "localhost",
 
@@ -64,17 +66,18 @@ function searchItems() {
       connection.query("SELECT * FROM products WHERE id=?", [answer.productId], function (err, res) {
         var currentItemQty = [];
         var numberOfItems = Number([answer.qty]);
-        // console.log(numberOfItems);
+        console.log(numberOfItems);
 
         for (var i = 0; i < res.length; i++) {
           currentItemQty.push(res[i].quantity);
+          totalBill.push(res[i].price * (numberOfItems))
           console.log("Item ID #: " + res[i].id + " | " + "Purchased Item: " + res[i].name + " | " + "Qty: " + [answer.qty] + " | " + "Unit Price is: $" + res[i].price + " | " + "Total Price is: $" + (res[i].price * (numberOfItems)));
         }
-        // console.log(currentItemQty[0]);
+        console.log(currentItemQty[0]);
 
-        var updatedInventory = currentItemQty[0] - numberOfItems;
+        if(currentItemQty[0] >= numberOfItems){
+           var updatedInventory = currentItemQty[0] - numberOfItems;
         // console.log(updatedInventory);
-
         function updateInventory() {
           console.log("Updating quantities...\n");
           var query = connection.query(
@@ -87,13 +90,19 @@ function searchItems() {
                 id: answer.productId
               },
             ],
-          ); readProducts();
-        } updateInventory()
+          );
+        } 
+        updateInventory();
+          pay();
+        }else{
+          console.log("Inventory Not Sufficient")
+          searchItems();
+        } 
       });
     });
 }
 function readProducts() {
-  console.log("Selecting all products...\n");
+  console.log("Check our...\n");
   connection.query("SELECT * FROM products", function (err, res) {
     if (err) throw err;
 
@@ -101,3 +110,7 @@ function readProducts() {
     connection.end();
   });
 }
+ function pay() {
+      console.log("Your total is $"+totalBill +" Thank You, come again!");
+      readProducts();
+ }
