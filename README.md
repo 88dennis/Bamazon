@@ -12,5 +12,5 @@ Then you will be able to utilize the feat of buying items that are displayed in 
 
 
 
-![](videos/sample.webm);
+![](videos/bamazongif.gif);
 ![](videos/bamazon.png);
