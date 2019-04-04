@@ -66,14 +66,14 @@ function searchItems() {
       connection.query("SELECT * FROM products WHERE id=?", [answer.productId], function (err, res) {
         var currentItemQty = [];
         var numberOfItems = Number([answer.qty]);
-        console.log(numberOfItems);
+        // console.log(numberOfItems);
 
         for (var i = 0; i < res.length; i++) {
           currentItemQty.push(res[i].quantity);
           totalBill.push(res[i].price * (numberOfItems))
           console.log("Item ID #: " + res[i].id + " | " + "Purchased Item: " + res[i].name + " | " + "Qty: " + [answer.qty] + " | " + "Unit Price is: $" + res[i].price + " | " + "Total Price is: $" + (res[i].price * (numberOfItems)));
         }
-        console.log(currentItemQty[0]);
+        // console.log(currentItemQty[0]);
 
         if(currentItemQty[0] >= numberOfItems){
            var updatedInventory = currentItemQty[0] - numberOfItems;
@@ -102,7 +102,7 @@ function searchItems() {
     });
 }
 function readProducts() {
-  console.log("Check our...\n");
+  console.log("Feel free to purchase again!...\n");
   connection.query("SELECT * FROM products", function (err, res) {
     if (err) throw err;
 
